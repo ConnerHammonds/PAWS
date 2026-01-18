@@ -6,47 +6,40 @@ A professional-grade web application for baseball analytics, designed for colleg
 
 - **Multi-Tenant Architecture**: Support for multiple teams with isolated data
 - **Advanced Analytics**: Pitch heat maps, spray charts, velocity trends, and spin rate analysis
-- **Secure Authentication**: Role-based access control (Admin/Coach/Player)
+- **Secure Authentication**: Role-based access control (Admin/Coach/Player) [Planned]
 - **White-Label Branding**: Dynamic theming system for team-specific branding
-- **Data Persistence**: PostgreSQL database for reliable data storage
-- **Professional Deployment**: Docker containerization with CI/CD pipeline
-- **Comprehensive Logging**: Production-grade logging and monitoring
-- **Testing Suite**: Automated testing with testthat and shinytest2
+- **Data Persistence**: PostgreSQL database schema ready for implementation
+- **Reproducible Environments**: renv package management for consistent deployments
+- **Environment Configuration**: config package for development/staging/production settings
 
 ## 📁 Project Structure
 
 ```
 baseball_analytics_dashboard/
-├── .github/
-│   └── workflows/
-│       └── deploy.yml          # CI/CD pipeline configuration
 ├── db/
-│   └── init.sql                # Database schema and initialization
+│   └── init.sql                # Database schema (PostgreSQL)
 ├── R/                          # Shiny modules and utilities
 │   ├── mod_pitching.R         # Pitching analytics module
 │   ├── mod_hitting.R          # Hitting analytics module
 │   ├── mod_admin.R            # Admin portal module
-│   ├── utils_db.R             # Database functions (with roxygen2 docs)
-│   ├── utils_theme.R          # Theme utilities
-│   └── utils_logging.R        # Logging system
-├── tests/
-│   └── testthat/              # Automated tests
-│       ├── test-database.R
-│       ├── test-theme.R
-│       └── test-modules.R
-├── logs/                       # Application logs
+│   ├── utils_db.R             # Database functions (placeholder)
+│   └── utils_theme.R          # Theme utilities
 ├── data/                       # Local data storage
 ├── www/                        # Static assets (CSS, images, logos)
-├── global.R                    # Global setup with config and logging
+├── renv/                       # renv package library
+│   ├── activate.R             # renv activation script
+│   ├── settings.json          # renv configuration
+│   └── library/               # Project-specific packages
+├── global.R                    # Global setup and configuration
 ├── ui.R                        # User interface
 ├── server.R                    # Server logic
+├── run_dev.ps1                 # Development server launcher (PowerShell)
+├── run_dev.R                   # Development server launcher (R)
 ├── config.yml                  # Environment-specific configuration
 ├── .env.example                # Environment variables template
+├── .Rprofile                   # renv activation on project load
 ├── .gitignore                  # Git ignore rules
-├── Dockerfile                  # Docker container definition
-├── docker-compose.yml          # Multi-container orchestration
-├── renv.lock                   # Package version lockfile
-└── install_packages.R          # Package installation script
+└── renv.lock                   # Package version lockfile
 ```
 
 ## 🚀 Quick Start
@@ -65,34 +58,41 @@ baseball_analytics_dashboard/
    cd baseball_analytics_dashboard
    ```
 
-2. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
-
-3. **Install R packages**
-   ```r
-   # Using renv (recommended)
-   renv::restore()
+2. **Install R packages**
    
-   # Or using install script
-   source("install_packages.R")
+   When you open R in this directory, renv automatically activates and prompts you to restore packages:
+   ```r
+   renv::restore()
    ```
+   
+   This installs all dependencies from renv.lock (exact versions for reproducibility).
 
-4. **Start with Docker (easiest)**
-   ```bash
-   docker-compose up -d
+3. **Run the development server**
+   
+   **Windows (PowerShell):**
+   ```powershell
+   .\run_dev.ps1
+   ```
+   
+   **R Console:**
+   ```r
+   source("run_dev.R")
+   ```
+   
+   **Or directly:**
+   ```r
+   shiny::runApp(port = 3838)
    ```
    
    Access the app at: `http://localhost:3838`
-   
-   Access pgAdmin at: `http://localhost:5050`
 
-5. **Or run locally**
-   ```r
-   # Start PostgreSQL separately, then:
-   shiny::runApp()
+4. **Optional: Set up PostgreSQL database** (for future phases)
+   ```bash
+   # Create database
+   createdb baseball_analytics
+   
+   # Initialize schema
+   psql -d baseball_analytics -f db/init.sql
    ```
 
 ## 🔧 Configuration
@@ -134,16 +134,6 @@ Comprehensive PostgreSQL schema includes:
 
 See [db/init.sql](db/init.sql) for complete schema.
 
-## 🧪 Testing
-
-```r
-# Run all tests
-testthat::test_dir("tests")
-
-# Run specific test file
-testthat::test_file("tests/testthat/test-database.R")
-```
-
 ## 📦 Package Management
 
 This project uses `renv` for reproducible package management:
@@ -159,33 +149,7 @@ renv::snapshot()
 renv::restore()
 ```
 
-## 🐳 Docker Deployment
-
-### Build and Run
-
-```bash
-# Build image
-docker build -t baseball-analytics:latest .
-
-# Run with docker-compose
-docker-compose up -d
-
-# View logs
-docker-compose logs -f app
-
-# Stop services
-docker-compose down
-```
-
-### Production Deployment
-
-1. Set `R_CONFIG_ACTIVE=production` in your environment
-2. Configure production database credentials
-3. Set up SSL/TLS certificates
-4. Configure reverse proxy (nginx/traefik)
-5. Set up monitoring and backups
-
-## 🔐 Security
+##  Security
 
 - **Environment Variables**: Sensitive data in `.env` (never commit)
 - **Password Hashing**: bcrypt for user passwords
@@ -193,19 +157,6 @@ docker-compose down
 - **Session Management**: Secure session handling with shinymanager
 - **Audit Logging**: All user actions tracked
 - **Role-Based Access**: Admin, Coach, and Player permissions
-
-## 📈 Monitoring & Logging
-
-Structured logging with the `logger` package:
-
-```r
-# Log levels: DEBUG, INFO, WARN, ERROR
-log_info("User logged in: {username}")
-log_user_action(user_id, "data_upload", "Uploaded 500 rows")
-log_error_context("Database query failed", "get_pitch_data")
-```
-
-Logs are stored in `logs/` directory with rotation.
 
 ## 🎨 White-Label Branding
 
@@ -220,26 +171,19 @@ teams:
     logo: "www/logos/your_logo.png"
 ```
 
-## 🔄 CI/CD Pipeline
-
-GitHub Actions workflow ([.github/workflows/deploy.yml](.github/workflows/deploy.yml)):
-
-1. **Test**: Run automated tests on push
-2. **Lint**: Code quality checks
-3. **Build**: Create Docker image
-4. **Deploy**: Auto-deploy to staging/production
-
-## 📝 Development Phases
+##  Development Phases
 
 - [x] **Phase 1**: Foundation & Package Setup
-- [x] **Phase 2**: Modular Architecture
-- [x] **Phase 3**: Production Infrastructure (renv, config, logging, tests)
-- [x] **Phase 4**: Database Schema & Docker Deployment
-- [ ] **Phase 5**: Authentication with shinymanager
-- [ ] **Phase 6**: Data Upload & Processing
-- [ ] **Phase 7**: Visualization Modules
-- [ ] **Phase 8**: User Acceptance Testing
-- [ ] **Phase 9**: Production Deployment
+- [x] **Phase 2**: Modular Architecture (basic structure)
+- [x] **Phase 3**: Environment Management (renv, config)
+- [x] **Phase 4**: Database Schema Design
+- [ ] **Phase 5**: Database Integration
+- [ ] **Phase 6**: Authentication
+- [ ] **Phase 7**: Data Upload & Processing
+- [ ] **Phase 8**: Visualization Modules
+- [ ] **Phase 9**: Testing & Deployment
+
+**Current Status**: Early development - core infrastructure in place, ready for feature implementation
 
 ## 🤝 Contributing
 
@@ -260,15 +204,16 @@ For support, feature requests, or licensing inquiries, contact the development t
 
 - **Language**: R 4.5.2
 - **Framework**: Shiny (modular architecture)
-- **Database**: PostgreSQL 16
-- **UI**: bslib (Bootstrap 5) + thematic
-- **Visualization**: ggplot2, plotly
-- **Authentication**: shinymanager
-- **Testing**: testthat, shinytest2
-- **Logging**: logger
-- **Config**: config package
-- **Package Management**: renv
-- **Containerization**: Docker, Docker Compose
-- **CI/CD**: GitHub Actions
+- **Database**: PostgreSQL 16 (schema ready, integration pending)
+- **UI**: bslib (Bootstrap 5)
+- **Data Manipulation**: dplyr
+- **Visualization**: ggplot2
+- **Configuration**: config package (environment-specific settings)
+- **Package Management**: renv (reproducible environments)
+
+**Planned Additions:**
+- plotly (interactive visualizations)
+- shinymanager (authentication)
+- RPostgres (database connectivity)
 
 ---
