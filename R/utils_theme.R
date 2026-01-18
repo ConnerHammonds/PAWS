@@ -7,7 +7,7 @@ get_team_theme <- function(pool, team_id) {
   
   # Return default SBU theme for now
   list(
-    primary = "#8B0015",    # SBU Red/Burgundy
+    primary = "#4F2683",    # SBU Purple
     secondary = "#FFFFFF",  # White
     accent = "#222222",     # Dark Gray
     team_name = "SBU Bearcats"
