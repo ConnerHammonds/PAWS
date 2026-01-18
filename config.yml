@@ -23,11 +23,6 @@ default:
     secondary_color: "#FFFFFF"    # White
     accent_color: "#222222"       # Dark Gray
     team_name: "Baseball Analytics"
-  
-  logging:
-    level: "INFO"  # DEBUG, INFO, WARN, ERROR
-    file: "logs/app.log"
-    console: true
 
 development:
   app:
@@ -37,10 +32,6 @@ development:
   database:
     host: "localhost"
     port: 5432
-  
-  logging:
-    level: "DEBUG"
-    console: true
 
 staging:
   app:
