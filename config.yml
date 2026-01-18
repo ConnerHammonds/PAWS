@@ -1,0 +1,92 @@
+# Configuration for Baseball Analytics Dashboard
+# Use config::get() to load environment-specific settings
+
+default:
+  app:
+    title: "Baseball Analytics Dashboard"
+    version: "0.1.0"
+    session_timeout: 3600  # seconds
+    max_upload_size: 100   # MB
+  
+  database:
+    driver: "postgres"
+    host: "localhost"
+    port: 5432
+    dbname: "baseball_analytics"
+    pool_size: 5
+    # Credentials loaded from environment variables
+    # user: !expr Sys.getenv("DB_USER")
+    # password: !expr Sys.getenv("DB_PASSWORD")
+  
+  theme:
+    primary_color: "#8B0015"      # Default: SBU Red
+    secondary_color: "#FFFFFF"    # White
+    accent_color: "#222222"       # Dark Gray
+    team_name: "Baseball Analytics"
+  
+  logging:
+    level: "INFO"  # DEBUG, INFO, WARN, ERROR
+    file: "logs/app.log"
+    console: true
+
+development:
+  app:
+    debug_mode: true
+    session_timeout: 7200
+  
+  database:
+    host: "localhost"
+    port: 5432
+  
+  logging:
+    level: "DEBUG"
+    console: true
+
+staging:
+  app:
+    debug_mode: false
+    session_timeout: 3600
+  
+  database:
+    host: !expr Sys.getenv("STAGING_DB_HOST")
+    port: 5432
+    pool_size: 10
+  
+  logging:
+    level: "INFO"
+    file: "logs/staging.log"
+
+production:
+  app:
+    debug_mode: false
+    session_timeout: 1800
+    max_upload_size: 50
+  
+  database:
+    host: !expr Sys.getenv("PROD_DB_HOST")
+    port: 5432
+    pool_size: 20
+    ssl: true
+  
+  logging:
+    level: "WARN"
+    file: "logs/production.log"
+    console: false
+  
+  monitoring:
+    enabled: true
+    sentry_dsn: !expr Sys.getenv("SENTRY_DSN")
+
+# Team-specific configurations (white-label support)
+teams:
+  sbu:
+    team_name: "SBU Bearcats"
+    primary_color: "#8B0015"
+    secondary_color: "#FFFFFF"
+    logo: "www/logos/sbu_logo.png"
+  
+  demo:
+    team_name: "Demo Team"
+    primary_color: "#003366"
+    secondary_color: "#FFFFFF"
+    logo: "www/logos/demo_logo.png"

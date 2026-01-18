@@ -1,0 +1,78 @@
+# R and RStudio
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+
+# renv
+renv/library/
+renv/local/
+renv/cellar/
+renv/lock/
+renv/python/
+renv/sandbox/
+renv/staging/
+
+# Sensitive Information
+.env
+.Renviron
+config_local.yml
+credentials.R
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+logs/
+*.log
+
+# Data files (large CSV exports)
+data/*.csv
+data/*.xlsx
+data/raw/
+data/processed/
+
+# Keep example data
+!data/example/
+
+# Shiny-specific
+rsconnect/
+packrat/
+.httr-oauth
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+
+# Deployment
+Dockerfile.local
+docker-compose.override.yml
+
+# Testing
+tests/testthat/_snaps/
+
+# Build artifacts
+*.tar.gz
+*.zip
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Backups
+*.bak
+*.backup
+*~
+
+# Documentation builds
+docs/_book/
+docs/.quarto/
