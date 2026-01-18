@@ -1,0 +1,70 @@
+Baseball stats, but make it SHINY
+1. Project Overview
+The SBU Baseball Analytics Dashboard is a high-performance web application built to centralize player performance data. It replaces static CSV files with a persistent database and an interactive UI, allowing coaches to identify trends and players to review their metrics through a secure, branded portal.
+Primary Goal: Provide a "Major League" data experience for a college program.
+Key Value Prop: Native R-based statistical power combined with a professional-grade, multi-tenant UI.
+
+2. Project Architecture
+The app will follow a decoupled, modular architecture to ensure stability and ease of branding updates.
+Data Layer: A PostgreSQL database serves as the "Source of Truth." This prevents data loss and allows for year-over-year longitudinal analysis.
+Logic Layer (R Modules): The app is split into distinct functional modules (e.g., mod_pitching, mod_hitting, mod_admin). This keeps the codebase clean and allows for targeted debugging.
+Branding Layer: A dynamic CSS engine that injects team-specific colors (SBU Purple) based on the logged-in user’s organization ID.
+
+3. Tech Stack Overview
+Component
+Technology
+Purpose
+Language
+R
+Primary engine for statistical computing and data wrangling.
+Framework
+Shiny (Modular)
+Web framework to build the UI and server logic.
+Database
+PostgreSQL
+Persistent storage for pitch-level and player-level data.
+UI / Theme
+bslib + thematic
+Modern Bootstrap 5 styling and auto-themed visualizations.
+Security
+shinymanager
+Handles encrypted logins, session management, and user roles.
+Viz Tools
+ggplot2 / Plotly
+Renders spray charts, heat maps, and interactive trends.
+
+
+
+4. Requirements
+Functional Requirements
+Multi-Role Access: Admins (Coaches) can upload data and manage rosters; Users (Players) can only view their own performance dashboards.
+Data Ingestion: A dedicated "Admin Portal" to upload CSV exports from Trackman/Rapsodo directly into the Postgres DB.
+Interactive Analytics:
+Spray Charts: Visualizing hit locations on a scaled baseball field.
+Pitch Heat Maps: Density plots of pitch locations in the strike zone.
+Trend Analysis: Tracking metrics like Exit Velocity or Spin Rate over a season.
+Data Persistence: All uploaded data must remain accessible across different sessions and app restarts.
+Non-Functional Requirements
+Dynamic Branding: The UI must support "white-labeling," allowing the app to switch from SBU branding to a generic or rival team’s branding via database configuration.
+Responsiveness: The dashboard must be usable on tablets and mobile devices for dugout access.
+
+5. Sample Timeline & Order of Development
+Phase 1: Foundation (Weeks 1-2)
+Initialize the R project using a modular structure (or the golem framework).
+Set up the PostgreSQL database and define the schema for teams, users, and pitch_data.
+Establish the database connection pool in global.R.
+Phase 2: Security & Branding (Weeks 3-4)
+Implement shinymanager for the login interface.
+Build the "White-Label" logic: create a function that fetches colors from the DB and applies them via bslib::bs_theme_update().
+Finalize SBU-specific CSS and assets (Bearcat logos).
+Phase 3: Data Engine (Weeks 5-6)
+Develop the Admin Upload Module: Write R scripts to clean raw CSV data and use DBI::dbWriteTable to append it to Postgres.
+Build data filtering logic (filtering by Player, Date Range, or Pitch Type).
+Phase 4: Visualization Module (Weeks 7-9)
+Build the Pitching Module: Heat maps and velocity trends.
+Build the Hitting Module: Spray charts and launch angle distributions.
+Implement thematic to ensure charts automatically match the SBU theme.
+Phase 5: Deployment & UAT (Week 10+)
+Deploy the app (e.g., via ShinyApps.io, Posit Connect, or a private VPS using Docker).
+User Acceptance Testing (UAT) with SBU coaching staff.
+
