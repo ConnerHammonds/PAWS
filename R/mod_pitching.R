@@ -1,96 +1,36 @@
 # Pitching Analytics Module
 # Displays pitch-level data, heat maps, and velocity trends
 
-# Module UI
 mod_pitching_ui <- function(id) {
   ns <- NS(id)
-  
   tagList(
-    h2("Pitching Analytics"),
-    
     fluidRow(
-      column(4,
-        wellPanel(
-          h4("Filters"),
-          selectInput(ns("pitcher"), "Select Pitcher:", choices = c("All Pitchers")),
-          dateRangeInput(ns("date_range"), "Date Range:",
-                        start = Sys.Date() - 30,
-                        end = Sys.Date()),
-          selectInput(ns("pitch_type"), "Pitch Type:", 
-                     choices = c("All", "Fastball", "Curveball", "Slider", "Changeup"))
+      column(
+        width=4,
+        div(
+          style = "background-color: #353535; padding: 20px; border-radius: 10px;",
+          fileInput(ns("csv_upload"), "Upload CSV"),
+          selectInput(ns("select_pitcher"), "Select Pitcher", choices = NULL),
+          actionButton(ns("generate_report"), "Generate Report")
         )
-      ),
-      column(8,
-        tabsetPanel(
-          tabPanel("Heat Map",
-            plotOutput(ns("pitch_heatmap"), height = "400px")
-          ),
-          tabPanel("Velocity Trends",
-            plotOutput(ns("velocity_plot"), height = "400px")
-          ),
-          tabPanel("Spin Rate",
-            plotOutput(ns("spin_plot"), height = "400px")
-          )
-        )
-      )
-    ),
-    
+    )
+  ),
+
     fluidRow(
-      column(12,
+      column(
+        width=12,
+        div(
+        style = "background-color: #353535; padding: 20px; border-radius: 10px;",
         h4("Pitch Data"),
-        tableOutput(ns("pitch_table"))
+        tableOutput(ns("pitch_data_table"))
+        )
       )
     )
-  )
+)
 }
 
-# Module Server
 mod_pitching_server <- function(id) {
   moduleServer(id, function(input, output, session) {
-    
-    # Placeholder data (will be replaced with DB queries)
-    pitch_data <- reactive({
-      # TODO: Query database based on filters
-      data.frame(
-        Date = Sys.Date(),
-        Pitcher = "Sample Player",
-        PitchType = "Fastball",
-        Velocity = 92.5,
-        SpinRate = 2400,
-        stringsAsFactors = FALSE
-      )
-    })
-    
-    # Heat Map Output
-    output$pitch_heatmap <- renderPlot({
-      ggplot() +
-        annotate("text", x = 0.5, y = 0.5, 
-                label = "Pitch heat map\n(Coming in Phase 4)", 
-                size = 8, color = "gray50") +
-        theme_void()
-    })
-    
-    # Velocity Trend Plot
-    output$velocity_plot <- renderPlot({
-      ggplot() +
-        annotate("text", x = 0.5, y = 0.5, 
-                label = "Velocity trends\n(Coming in Phase 4)", 
-                size = 8, color = "gray50") +
-        theme_void()
-    })
-    
-    # Spin Rate Plot
-    output$spin_plot <- renderPlot({
-      ggplot() +
-        annotate("text", x = 0.5, y = 0.5, 
-                label = "Spin rate analysis\n(Coming in Phase 4)", 
-                size = 8, color = "gray50") +
-        theme_void()
-    })
-    
-    # Data Table
-    output$pitch_table <- renderTable({
-      pitch_data()
-    })
+    #server logic
   })
 }
