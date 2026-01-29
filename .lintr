@@ -1,0 +1,2 @@
+# Gets rid of the line length linter that marks every line with over 80 characters 
+linters: with_defaults(line_length_linter = NULL)
