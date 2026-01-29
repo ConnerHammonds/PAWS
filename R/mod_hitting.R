@@ -1,96 +1,58 @@
-# Hitting Analytics Module
-# Displays spray charts, exit velocity, and launch angle distributions
-
-# Module UI
+# Hitting Module UI
 mod_hitting_ui <- function(id) {
   ns <- NS(id)
   
   tagList(
-    h2("Hitting Analytics"),
-    
     fluidRow(
-      column(4,
-        wellPanel(
-          h4("Filters"),
-          selectInput(ns("hitter"), "Select Hitter:", choices = c("All Hitters")),
-          dateRangeInput(ns("date_range"), "Date Range:",
-                        start = Sys.Date() - 30,
-                        end = Sys.Date()),
-          selectInput(ns("hit_type"), "Hit Type:", 
-                     choices = c("All", "Ground Ball", "Line Drive", "Fly Ball", "Pop Up"))
-        )
-      ),
-      column(8,
-        tabsetPanel(
-          tabPanel("Spray Chart",
-            plotOutput(ns("spray_chart"), height = "400px")
-          ),
-          tabPanel("Exit Velocity",
-            plotOutput(ns("exit_velo_plot"), height = "400px")
-          ),
-          tabPanel("Launch Angle",
-            plotOutput(ns("launch_angle_plot"), height = "400px")
-          )
+      column(
+        width = 4,
+        div(
+          style = "background-color: #353535; padding: 20px; border-radius: 10px;",
+          fileInput(ns("csv_upload"), "Upload CSV"),
+          selectInput(ns("select_hitter"), "Select Hitter", choices = NULL),
+          actionButton(ns("generate_report"), "Generate Report")
         )
       )
     ),
-    
     fluidRow(
-      column(12,
-        h4("Hit Data"),
-        tableOutput(ns("hit_table"))
+      column(
+        width=12,
+        div(
+        style = "background-color: #353535; padding: 20px; border-radius: 10px;",
+        h4("Pitch Data"),
+        tableOutput(ns("hitter_data_table"))
+        )
       )
     )
   )
 }
 
-# Module Server
+# Hitting Module Server
 mod_hitting_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     
-    # Placeholder data (will be replaced with DB queries)
-    hit_data <- reactive({
-      # TODO: Query database based on filters
-      data.frame(
-        Date = Sys.Date(),
-        Hitter = "Sample Player",
-        ExitVelocity = 95.3,
-        LaunchAngle = 28,
-        Distance = 380,
-        stringsAsFactors = FALSE
-      )
+    # Read CSV
+    csv_data <- reactive({
+      req(input$csv_upload)
+      read.csv(input$csv_upload$datapath, stringsAsFactors = FALSE)
     })
     
-    # Spray Chart Output
-    output$spray_chart <- renderPlot({
-      ggplot() +
-        annotate("text", x = 0.5, y = 0.5, 
-                label = "Spray chart\n(Coming in Phase 4)", 
-                size = 8, color = "gray50") +
-        theme_void()
+    # Update dropdown with unique hitter names
+    observeEvent(csv_data(), {
+      updateSelectInput(session, "select_hitter", choices = unique(csv_data()$Hitter))
     })
     
-    # Exit Velocity Plot
-    output$exit_velo_plot <- renderPlot({
-      ggplot() +
-        annotate("text", x = 0.5, y = 0.5, 
-                label = "Exit velocity trends\n(Coming in Phase 4)", 
-                size = 8, color = "gray50") +
-        theme_void()
+    # Filter for selected hitter
+    filtered_data <- reactive({
+      req(csv_data(), input$select_hitter)
+      subset(csv_data(), Hitter == input$select_hitter)
     })
     
-    # Launch Angle Plot
-    output$launch_angle_plot <- renderPlot({
-      ggplot() +
-        annotate("text", x = 0.5, y = 0.5, 
-                label = "Launch angle distribution\n(Coming in Phase 4)", 
-                size = 8, color = "gray50") +
-        theme_void()
+    # Render the filtered data table
+    output$pitch_data_table <- renderTable({
+      req(filtered_data())
+      filtered_data()
     })
     
-    # Data Table
-    output$hit_table <- renderTable({
-      hit_data()
-    })
   })
 }
