@@ -5,21 +5,36 @@ mod_hitting_ui <- function(id) {
   tagList(
     fluidRow(
       column(
-        width = 4,
+        width = 6,
         div(
           style = "background-color: #353535; padding: 20px; border-radius: 10px;",
           fileInput(ns("csv_upload"), "Upload CSV"),
           selectInput(ns("select_hitter"), "Select Hitter", choices = NULL),
           actionButton(ns("generate_report"), "Generate Report")
         )
+      ),
+      column(
+        width = 6,
+        div(
+          style = "background-color: #2b2b2b; padding: 20px; border-radius: 10px; height: calc(100vh - 260px); overflow: auto;",
+          tabsetPanel(
+            id = ns("right_tabs"),
+            type = "pills",
+            tabPanel("Spray Chart", uiOutput(ns("spray_chart"))),
+            tabPanel("Exit Velocity", uiOutput(ns("exit_velocity"))),
+            tabPanel("Heat Map", uiOutput(ns("heat_map_hitter"))),
+            tabPanel("Launch Angle", uiOutput(ns("launch_angle")))
+          )
+        )
       )
     ),
     fluidRow(
       column(
+        style = "margin-top: 175px;",
         width=12,
         div(
         style = "background-color: #353535; padding: 20px; border-radius: 10px;",
-        h4("Pitch Data"),
+        h4("Hitter Data"),
         tableOutput(ns("hitter_data_table"))
         )
       )
