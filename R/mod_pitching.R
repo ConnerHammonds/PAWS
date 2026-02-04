@@ -1,6 +1,9 @@
 # Pitching Analytics Module
 # Displays pitch-level data, heat maps, and velocity trends
 
+# Load the visualizations that will be used in this module
+source("Visualizations/pitch_movement.R")
+
 mod_pitching_ui <- function(id) {
   ns <- NS(id)
   tagList(
