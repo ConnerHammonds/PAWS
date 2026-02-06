@@ -1,3 +1,7 @@
+
+source("Visualizations/pitch_movement.R")
+source("Visualizations/strike_plot.R")
+source("Visualizations/pitcher_extension.R")
 mod_pitching_ui <- function(id) {
   ns <- NS(id)
   
@@ -20,7 +24,7 @@ mod_pitching_ui <- function(id) {
             id = ns("right_tabs"),
             type = "pills",
             tabPanel("Pitch Movement", uiOutput(ns("pitch_movement"))),
-            tabPanel("Pitch Location", uiOutput(ns("pitch_location"))),
+            tabPanel("Pitch Location", uiOutput(ns("pitch_location")), plotOutput(ns("pitch_location_plot"))),
             tabPanel("Release Height", uiOutput(ns("release_height"))),
             tabPanel("Extension", uiOutput(ns("extension")))
           )
@@ -64,5 +68,15 @@ mod_pitching_server <- function(id) {
       req(filtered_data())
       filtered_data()
     }) 
+    # Pitch location plot (namespaced to module)
+    output$pitch_location_plot <- renderPlot({
+      req(filtered_data())
+      strike_plot(filtered_data())
+    })
+    #Pitch extension plot 
+    output$extension <- renderPlot({
+      req(filtered_data())
+      pitcher_extension(filtered_data())
+    })
   })
 }
