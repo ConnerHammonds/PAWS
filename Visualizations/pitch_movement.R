@@ -1,6 +1,4 @@
-data <- read.csv("example_bullpen.csv", stringsAsFactors = FALSE)
-
-movement_plot <- function(data) {
+pitch_movement <- function(data) {
   
   ggplot(data, aes(x = Break_Horizontal, y = Break_Vertical, color = Pitch_Type)) +
     geom_point(size = 3, alpha = 0.8) +
@@ -14,4 +12,4 @@ movement_plot <- function(data) {
     theme(
       plot.title = element_text(hjust = 0.5)
     )
-}
+  }

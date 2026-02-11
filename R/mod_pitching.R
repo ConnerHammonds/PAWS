@@ -1,7 +1,11 @@
+#Pitching Module file with UI and Server functions
 
+#Load necessary pitching visualization files
 source("Visualizations/pitch_movement.R")
 source("Visualizations/strike_plot.R")
 source("Visualizations/pitcher_extension.R")
+
+#UI for pitching module
 mod_pitching_ui <- function(id) {
   ns <- NS(id)
   
@@ -23,7 +27,7 @@ mod_pitching_ui <- function(id) {
           tabsetPanel(
             id = ns("right_tabs"),
             type = "pills",
-            tabPanel("Pitch Movement", uiOutput(ns("pitch_movement"))),
+            tabPanel("Pitch Movement", plotOutput(ns("movement"))),
             tabPanel("Pitch Location", uiOutput(ns("pitch_location")), plotOutput(ns("pitch_location_plot"))),
             tabPanel("Release Height", uiOutput(ns("release_height"))),
             tabPanel("Extension", uiOutput(ns("extension")))
@@ -53,30 +57,41 @@ mod_pitching_server <- function(id) {
       req(input$csv_upload)
       read.csv(input$csv_upload$datapath, stringsAsFactors = FALSE)
     })
-    
+
     # Update dropdown with unique pitcher names
     observeEvent(csv_data(), {
       updateSelectInput(session, "select_pitcher", choices = unique(csv_data()$Pitcher))
     })
+
     # Filter for selected pitcher
     filtered_data <- reactive({
       req(csv_data(), input$select_pitcher)
       subset(csv_data(), Pitcher == input$select_pitcher)
-    })   
+    })
+
     # Render the filtered data table
     output$pitch_data_table <- renderTable({
       req(filtered_data())
       filtered_data()
-    }) 
+    })
+
     # Pitch location plot (namespaced to module)
     output$pitch_location_plot <- renderPlot({
       req(filtered_data())
       strike_plot(filtered_data())
     })
-    #Pitch extension plot 
+
+    #Pitcher extension plot 
     output$extension <- renderPlot({
       req(filtered_data())
       pitcher_extension(filtered_data())
     })
+
+    #Pitch Movement plot
+    output$movement <- renderPlot({
+      req(filtered_data())
+      pitch_movement(filtered_data())
+    })
+
   })
 }
