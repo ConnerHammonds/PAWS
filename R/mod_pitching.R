@@ -2,9 +2,9 @@
 source("Visualizations/pitch_movement.R")
 source("Visualizations/strike_plot.R")
 source("Visualizations/pitcher_extension.R")
+source("Visualizations/releasepoint.R")
 mod_pitching_ui <- function(id) {
   ns <- NS(id)
-  
   tagList(
     fluidRow(
       column(
@@ -25,8 +25,8 @@ mod_pitching_ui <- function(id) {
             type = "pills",
             tabPanel("Pitch Movement", uiOutput(ns("pitch_movement"))),
             tabPanel("Pitch Location", uiOutput(ns("pitch_location")), plotOutput(ns("pitch_location_plot"))),
-            tabPanel("Release Height", uiOutput(ns("release_height"))),
-            tabPanel("Extension", uiOutput(ns("extension")))
+            tabPanel("Release Point", uiOutput(ns("release_point")), plotOutput(ns("release_point_plot"))),
+            tabPanel("Extension", uiOutput(ns("extension")), plotOutput(ns("extension_plot")))
           )
         )
       )
@@ -74,9 +74,13 @@ mod_pitching_server <- function(id) {
       strike_plot(filtered_data())
     })
     #Pitch extension plot 
-    output$extension <- renderPlot({
+    output$extension_plot <- renderPlot({
       req(filtered_data())
       pitcher_extension(filtered_data())
+    })
+    output$release_point_plot <-renderPlot({
+      req(filtered_data())
+      release_point(filtered_data())
     })
   })
 }
