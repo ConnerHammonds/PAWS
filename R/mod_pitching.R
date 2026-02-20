@@ -53,6 +53,22 @@ mod_pitching_server <- function(id) {
       req(input$csv_upload)
       read.csv(input$csv_upload$datapath, stringsAsFactors = FALSE)
     })
+
+    #create objects for each tab for export purposes
+  extension_plot_reactive <- reactive({
+    req(filtered_data())
+    pitcher_extension(filtered_data())
+  })
+
+release_point_plot_reactive <- reactive({
+  req(filtered_data())
+  release_point(filtered_data())
+})
+
+pitch_location_plot_reactive <- reactive({
+  req(filtered_data())
+  strike_plot(filtered_data())
+})
     
     # Update dropdown with unique pitcher names
     observeEvent(csv_data(), {
