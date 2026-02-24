@@ -63,6 +63,9 @@ pitch_movement <- function(data) {
       expand = c(0, 0)
     ) +
 
+    # Enforce equal unit spacing on both axes so grid cells are square
+    coord_fixed(ratio = 1) +
+
     # Step 8 — Color scale (PITCH_COLORS defined in R/utils_theme.R)
     scale_color_manual(values = PITCH_COLORS, na.value = "grey50") +
 
