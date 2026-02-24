@@ -34,3 +34,23 @@ apply_dynamic_theme <- function(session, theme_colors) {
   
   message("Dynamic theming not yet implemented")
 }
+
+# ---------------------------------------------------------------------------
+# Pitch-type color palette  (Statcast abbreviations)
+# Keys match the Pitch_Type values that come directly out of the CSV.
+# Used by every pitch visualization in the project.  Edit once here and all
+# plots update automatically.  Unknown abbreviations fall back to grey.
+# ---------------------------------------------------------------------------
+PITCH_COLORS <- c(
+  "FF" = "#D55E00",  # 4-Seam Fastball  — burnt orange
+  "FT" = "#E69F00",  # 2-Seam Fastball  — amber
+  "SI" = "#56B4E9",  # Sinker           — light blue
+  "FC" = "#F0E442",  # Cutter           — yellow
+  "SL" = "#4CAF50",  # Slider           — green
+  "CU" = "#0072B2",  # Curveball        — blue
+  "CH" = "#9B59B6",  # Changeup         — purple
+  "SP" = "#CC79A7",  # Splitter         — pink
+  "KN" = "#999999",  # Knuckleball      — grey
+  "EP" = "#A52A2A"   # Eephus           — brown
+)
+
