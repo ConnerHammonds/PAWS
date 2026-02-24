@@ -27,7 +27,7 @@ mod_pitching_ui <- function(id) {
           tabsetPanel(
             id = ns("right_tabs"),
             type = "pills",
-            tabPanel("Pitch Movement", plotOutput(ns("movement"))),
+            tabPanel("Pitch Movement", girafeOutput(ns("movement"), width = "100%", height = "auto")),
             tabPanel("Pitch Location", uiOutput(ns("pitch_location")), plotOutput(ns("pitch_location_plot"))),
             tabPanel("Release Height", uiOutput(ns("release_height"))),
             tabPanel("Extension", uiOutput(ns("extension")))
@@ -88,7 +88,7 @@ mod_pitching_server <- function(id) {
     })
 
     #Pitch Movement plot
-    output$movement <- renderPlot({
+    output$movement <- renderGirafe({
       req(filtered_data())
       pitch_movement(filtered_data())
     })

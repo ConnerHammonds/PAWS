@@ -13,6 +13,7 @@
 # `data` is whatever data frame the caller passes in (live CSV upload, a
 # reactive data frame from Shiny, a static test frame, etc.).
 pitch_movement <- function(data) {
+  # Returns a ggiraph girafe object so Shiny can render hover tooltips.
 
   # Input validation
   # Fail early with a clear message rather than a confusing ggplot2 error.
@@ -42,14 +43,22 @@ pitch_movement <- function(data) {
   # ---------------------------------------------------------------------------
   # Build the plot
   # ---------------------------------------------------------------------------
-  ggplot(data, aes(x = as.numeric(Break_Horizontal), y = as.numeric(Break_Induced_Vertical), color = Pitch_Type)) +
+  p <- ggplot(data, aes(x = as.numeric(Break_Horizontal), y = as.numeric(Break_Induced_Vertical), color = Pitch_Type)) +
 
     # Step 5 — Zero reference lines (the cross-hair in the screenshot)
     geom_hline(yintercept = 0, color = "grey40", linewidth = 0.6) +
     geom_vline(xintercept = 0, color = "grey40", linewidth = 0.6) +
 
-    # Step 6 — Scatter points
-    geom_point(size = 3, alpha = 0.85) +
+    # Step 6 — Interactive scatter points with hover tooltips
+    geom_point_interactive(
+      aes(
+        tooltip = paste0(
+          "Horizontal: ", round(as.numeric(Break_Horizontal), 1), " in\n",
+          "Vertical: ",   round(as.numeric(Break_Induced_Vertical), 1), " in"
+        )
+      ),
+      size = 3, alpha = 0.85
+    ) +
 
     # Step 7 — Fixed, labeled axes with consistent 2.5-inch grid spacing
     scale_x_continuous(
@@ -101,4 +110,16 @@ pitch_movement <- function(data) {
       axis.text         = element_text(size = 9),
       axis.title        = element_text(size = 11)
     )
+
+  # Wrap the ggplot in a girafe object to enable interactivity
+  girafe(
+    ggobj = p,
+    options = list(
+      opts_tooltip(
+        css = "background-color:#222; color:#fff; padding:6px 10px; border-radius:4px; font-size:12px; white-space:pre;",
+        use_cursor_pos = TRUE
+      ),
+      opts_hover(css = "opacity:1; r:5px;")
+    )
+  )
 }
