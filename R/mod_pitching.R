@@ -4,11 +4,11 @@
 source("Visualizations/pitch_movement.R")
 source("Visualizations/strike_plot.R")
 source("Visualizations/pitcher_extension.R")
+source("Visualizations/releasepoint.R")
 
 #UI for pitching module
 mod_pitching_ui <- function(id) {
   ns <- NS(id)
-  
   tagList(
     fluidRow(
       column(
@@ -29,8 +29,8 @@ mod_pitching_ui <- function(id) {
             type = "pills",
             tabPanel("Pitch Movement", girafeOutput(ns("movement"), width = "100%", height = "auto")),
             tabPanel("Pitch Location", uiOutput(ns("pitch_location")), plotOutput(ns("pitch_location_plot"))),
-            tabPanel("Release Height", uiOutput(ns("release_height"))),
-            tabPanel("Extension", uiOutput(ns("extension")))
+            tabPanel("Release Point", uiOutput(ns("release_point")), plotOutput(ns("release_point_plot"))),
+            tabPanel("Extension", uiOutput(ns("extension")), plotOutput(ns("extension_plot")))
           )
         )
       )
@@ -58,6 +58,22 @@ mod_pitching_server <- function(id) {
       read.csv(input$csv_upload$datapath, stringsAsFactors = FALSE)
     })
 
+   #create objects for each tab for export purposes
+extension_plot_reactive <- reactive({
+    req(filtered_data())
+    pitcher_extension(filtered_data())
+  })
+
+release_point_plot_reactive <- reactive({
+  req(filtered_data())
+  release_point(filtered_data())
+})
+
+pitch_location_plot_reactive <- reactive({
+  req(filtered_data())
+  strike_plot(filtered_data())
+})
+    
     # Update dropdown with unique pitcher names
     observeEvent(csv_data(), {
       updateSelectInput(session, "select_pitcher", choices = unique(csv_data()$Pitcher))
@@ -79,6 +95,15 @@ mod_pitching_server <- function(id) {
     output$pitch_location_plot <- renderPlot({
       req(filtered_data())
       strike_plot(filtered_data())
+    })
+    #Pitch extension plot 
+    output$extension_plot <- renderPlot({
+      req(filtered_data())
+      pitcher_extension(filtered_data())
+    })
+    output$release_point_plot <-renderPlot({
+      req(filtered_data())
+      release_point(filtered_data())
     })
 
     #Pitcher extension plot 

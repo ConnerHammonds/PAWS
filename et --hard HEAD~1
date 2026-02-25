@@ -1,0 +1,23 @@
+*   [33m3fecc25[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mpitcher-plots[m[33m)[m merge
+[31m|[m[32m\[m  
+[31m|[m * [33mb20af62[m[33m ([m[1;31morigin/fix_movement[m[33m)[m enables hover feature where the horizontal and vertical break are displayed for the pitch that the user is hovering over by using ggiraph
+[31m|[m * [33m577055f[m fix the auto spacing and enfore a 1:1 ratio. Makes grid cells square as they should be
+[31m|[m * [33md19de01[m fixes the movement plot file. Works correctly now. Additionally, configures a pitch color legend in the utils_theme file that can be used globally on all necessary pitch visualation files.
+[31m|[m * [33m4374963[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Cleans up the function calling mechanism for the movement chart. Also cleans up some code formatting
+[31m|[m *   [33m2b3f067[m Merge pull request #2 from ConnerHammonds/ui-changes-and-new-hitting-tab
+[31m|[m [33m|[m[34m\[m  
+* [33m|[m [34m|[m [33m6d2c139[m[33m ([m[1;31morigin/pitcher-plots[m[33m)[m reactive plots
+* [33m|[m [34m|[m [33mdd46f91[m created objects for plots to be able to export to rmd efficiently
+* [33m|[m [34m|[m [33md0abc4e[m finished extension, release point
+[34m|[m [33m|[m[34m/[m  
+[34m|[m[34m/[m[33m|[m   
+* [33m|[m [33m0d73245[m[33m ([m[1;31morigin/ui-changes-and-new-hitting-tab[m[33m, [m[1;32mui-changes-and-new-hitting-tab[m[33m)[m full implement of location plot, some work on extension
+[35m|[m[33m\[m[33m|[m 
+[35m|[m *   [33m2824112[m Merge pull request #1 from ConnerHammonds/pitcher-csv-separation
+[35m|[m [1;31m|[m[1;32m\[m  
+[35m|[m [1;31m|[m * [33mf2b1629[m[33m ([m[1;31morigin/pitcher-csv-separation[m[33m)[m adds visualization folder and a couple other things
+* [1;31m|[m [1;32m|[m [33m9d6b643[m Added tabs for graphs
+* [1;31m|[m [1;32m|[m [33mff4bcbd[m hitting interface redone, ui changes in pitching
+[1;32m|[m [1;31m|[m[1;32m/[m  
+[1;32m|[m[1;32m/[m[1;31m|[m   
+* [1;31m|[m [33mb747da5[m[33m ([m[1;32mpitcher-csv-separation[m[33m)[m updated the server logic to generate the pitcher data filtered by pitcher name
