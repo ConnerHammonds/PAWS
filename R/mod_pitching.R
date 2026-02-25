@@ -54,8 +54,8 @@ mod_pitching_server <- function(id) {
       read.csv(input$csv_upload$datapath, stringsAsFactors = FALSE)
     })
 
-    #create objects for each tab for export purposes
-  extension_plot_reactive <- reactive({
+   #create objects for each tab for export purposes
+extension_plot_reactive <- reactive({
     req(filtered_data())
     pitcher_extension(filtered_data())
   })
