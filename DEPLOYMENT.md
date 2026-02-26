@@ -15,29 +15,29 @@ This guide covers deploying the Baseball Analytics Dashboard to production envir
 
 ## Deployment Options
 
-### Option 1: Docker (Recommended)
-**Best for**: Quick deployment, testing, and containerized environments
-- Includes PostgreSQL, app server, and optional pgAdmin
-- Isolated environment
-- Easy scaling
+### Option 1: Local Development (Current)
+**Best for**: Early development, testing features
+- Direct R execution with renv
+- Fast iteration
+- Easy debugging
 
-### Option 2: Cloud Platform (ShinyApps.io, Posit Connect)
+### Option 2: Cloud Platform (ShinyApps.io, Posit Connect) [Future]
 **Best for**: Managed hosting, automatic scaling
 - No server management required
 - Built-in SSL/TLS
-- Limited customization
+- Easy deployment from RStudio
 
-### Option 3: VPS/Dedicated Server
+### Option 3: VPS/Dedicated Server [Future]
 **Best for**: Full control, custom requirements
 - Maximum customization
 - Direct server access
 - Requires server administration knowledge
 
-### Option 4: Kubernetes
+### Option 4: Containerization (Docker/Kubernetes) [Stretch Goal]
 **Best for**: Enterprise deployments, high availability
-- Auto-scaling
-- Load balancing
-- Complex setup
+- Isolated environments
+- Easy scaling
+- Production-grade deployment
 
 ---
 
@@ -46,22 +46,47 @@ This guide covers deploying the Baseball Analytics Dashboard to production envir
 ### Setup Steps
 
 1. **Install Prerequisites**
-   ```bash
-   # Install R 4.5.2
-   # Install PostgreSQL 16
-   # Install Git
-   ```
+   - R 4.5.2 or higher
+   - Git
+   - RStudio (optional but recommended) or VS Code with R extension
 
 2. **Clone and Configure**
    ```bash
    git clone <repository>
    cd baseball_analytics_dashboard
-   cp .env.example .env
-   # Edit .env with your settings
    ```
 
-3. **Set up Database**
+3. **Install R Packages**
+   
+   renv automatically activates when you open R in this directory.
+   ```r
+   # Restore packages from lockfile
+   renv::restore()
+   ```
+
+4. **Run the Development Server**
+   
+   **Windows (PowerShell):**
+   ```powershell
+   .\run_dev.ps1
+   ```
+   
+   **R Console:**
+   ```r
+   source("run_dev.R")
+   ```
+   
+   **Or directly:**
+   ```r
+   Sys.setenv(R_CONFIG_ACTIVE = "development")
+   shiny::runApp(port = 3838)
+   ```
+   
+   Access the app at: `http://localhost:3838`
+
+5. **Database Setup** (optional - for future phases)
    ```bash
+   # Install PostgreSQL locally
    # Create database
    createdb baseball_analytics
    
@@ -69,156 +94,25 @@ This guide covers deploying the Baseball Analytics Dashboard to production envir
    psql -d baseball_analytics -f db/init.sql
    ```
 
-4. **Install R Packages**
-   ```r
-   renv::restore()
-   ```
+### Development Workflow
 
-5. **Run Application**
+1. **Make changes** to R files (modules, UI, server)
+2. **Reload app** - Shiny auto-reloads on file save
+3. **Test manually** in browser
+4. **Add new packages** if needed:
    ```r
-   # Set environment
-   Sys.setenv(R_CONFIG_ACTIVE = "development")
-   
-   # Run app
-   shiny::runApp()
+   install.packages("package_name")
+   renv::snapshot()  # Update lockfile
    ```
+5. **Commit changes** including updated renv.lock
 
 ---
 
-## Docker Deployment
-
-### Quick Start (Development)
-
-```bash
-# Start all services
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop services
-docker-compose down
-```
-
-### Production Deployment
-
-1. **Create Production Environment File**
-   ```bash
-   cp .env.example .env.production
-   # Edit with production credentials
-   ```
-
-2. **Update docker-compose for Production**
-   ```yaml
-   # docker-compose.prod.yml
-   services:
-     app:
-       environment:
-         R_CONFIG_ACTIVE: production
-       restart: always
-   ```
-
-3. **Deploy**
-   ```bash
-   docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-   ```
-
-4. **Set up Reverse Proxy (nginx)**
-   ```nginx
-   server {
-       listen 80;
-       server_name analytics.yourteam.com;
-       
-       location / {
-           proxy_pass http://localhost:3838;
-           proxy_http_version 1.1;
-           proxy_set_header Upgrade $http_upgrade;
-           proxy_set_header Connection "upgrade";
-           proxy_set_header Host $host;
-           proxy_cache_bypass $http_upgrade;
-       }
-   }
-   ```
-
-5. **Enable SSL with Let's Encrypt**
-   ```bash
-   sudo certbot --nginx -d analytics.yourteam.com
-   ```
-
----
-
-## Cloud Deployment
-
-### AWS Deployment (Recommended for Enterprise)
-
-#### Option A: ECS (Elastic Container Service)
-
-1. **Push Image to ECR**
-   ```bash
-   # Authenticate
-   aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <account-id>.dkr.ecr.us-east-1.amazonaws.com
-   
-   # Build and tag
-   docker build -t baseball-analytics .
-   docker tag baseball-analytics:latest <account-id>.dkr.ecr.us-east-1.amazonaws.com/baseball-analytics:latest
-   
-   # Push
-   docker push <account-id>.dkr.ecr.us-east-1.amazonaws.com/baseball-analytics:latest
-   ```
-
-2. **Set up RDS PostgreSQL**
-   - Create RDS PostgreSQL instance
-   - Configure security groups
-   - Note connection details
-
-3. **Create ECS Task Definition**
-   ```json
-   {
-     "family": "baseball-analytics",
-     "containerDefinitions": [{
-       "name": "app",
-       "image": "<ecr-image-url>",
-       "portMappings": [{"containerPort": 3838}],
-       "environment": [
-         {"name": "R_CONFIG_ACTIVE", "value": "production"},
-         {"name": "DB_HOST", "value": "<rds-endpoint>"}
-       ],
-       "secrets": [
-         {"name": "DB_PASSWORD", "valueFrom": "<secrets-manager-arn>"}
-       ]
-     }]
-   }
-   ```
-
-4. **Deploy with Load Balancer**
-   - Create Application Load Balancer
-   - Configure target group for port 3838
-   - Set up health checks
-   - Enable auto-scaling
-
-#### Option B: EC2 Instance
-
-```bash
-# Connect to EC2
-ssh -i your-key.pem ubuntu@<instance-ip>
-
-# Install Docker
-sudo apt update
-sudo apt install docker.io docker-compose
-
-# Clone repository
-git clone <repository>
-cd baseball_analytics_dashboard
-
-# Configure environment
-cp .env.example .env
-# Edit .env
-
-# Deploy
-docker-compose up -d
-```
+## Cloud Deployment (Future)
 
 ### Posit Connect / ShinyApps.io
+
+**Note**: Database integration required before cloud deployment
 
 1. **Install rsconnect**
    ```r
@@ -243,52 +137,59 @@ docker-compose up -d
    )
    ```
 
-### Google Cloud Platform (GCP)
+### AWS Deployment (Advanced)
 
-1. **Cloud Run Deployment**
-   ```bash
-   # Build and push to GCR
-   gcloud builds submit --tag gcr.io/PROJECT_ID/baseball-analytics
-   
-   # Deploy to Cloud Run
-   gcloud run deploy baseball-analytics \
-     --image gcr.io/PROJECT_ID/baseball-analytics \
-     --platform managed \
-     --region us-central1 \
-     --allow-unauthenticated
-   ```
+**Future option when ready for production:**
 
-2. **Cloud SQL for PostgreSQL**
-   - Create Cloud SQL instance
-   - Configure Cloud SQL Proxy
-   - Update connection settings
+1. **Set up RDS PostgreSQL**
+   - Create RDS PostgreSQL instance
+   - Configure security groups
+   - Note connection details for config.yml
+
+2. **EC2 with Shiny Server**
+   - Launch Ubuntu EC2 instance
+   - Install R and Shiny Server
+   - Clone repository and use renv::restore()
+   - Configure reverse proxy (nginx) with SSL
+
+3. **Environment Configuration**
+   - Set R_CONFIG_ACTIVE=production
+   - Configure database credentials in environment variables
+   - Set up CloudWatch for monitoring
 
 ---
 
 ## Security Checklist
 
-### Before Production Deployment
+### Development (Current)
 
+- [x] renv for reproducible package management
+- [x] config.yml for environment-specific settings
+- [x] .gitignore properly configured
+- [ ] Database schema ready (not yet integrated)
+- [ ] Authentication system (planned)
+
+### Before Production Deployment (Future)
+
+- [ ] Implement authentication (shinymanager)
+- [ ] Set up PostgreSQL database
 - [ ] Change all default passwords
-- [ ] Generate strong `APP_SECRET_KEY`
 - [ ] Set `R_CONFIG_ACTIVE=production`
 - [ ] Enable HTTPS/SSL
 - [ ] Configure firewall rules
 - [ ] Set up database backups
-- [ ] Enable audit logging
 - [ ] Review user permissions
-- [ ] Scan for vulnerabilities
-- [ ] Set up monitoring alerts
+- [ ] Set up monitoring
 
-### Environment Variables
+### Environment Variables (When Implemented)
 
 **Never commit these to version control:**
 
 ```bash
 # Critical secrets
+DB_USER=app_user
 DB_PASSWORD=<strong-password>
-APP_SECRET_KEY=<random-string>
-ADMIN_PASSWORD=<secure-password>
+DB_HOST=<database-host>
 ```
 
 ### Database Security
@@ -323,118 +224,87 @@ production:
 
 ## Monitoring & Maintenance
 
-### Health Checks
+### Current Development
 
+**Manual Testing:**
+- Run app locally with `.\run_dev.ps1`
+- View errors in R console
+- Check browser console for JavaScript errors
+
+**Package Management:**
+```r
+# Check for package changes
+renv::status()
+
+# Update lockfile after installing new packages
+renv::snapshot()
+
+# Sync with lockfile after pulling changes
+renv::restore()
+```
+
+### Future Production Monitoring
+
+**Health Checks:**
 ```bash
 # Application health
 curl http://localhost:3838/
 
-# Database health
+# Database health (when implemented)
 psql -h localhost -U app_user -d baseball_analytics -c "SELECT 1;"
 ```
 
-### Log Monitoring
-
-```bash
-# Docker logs
-docker-compose logs -f app
-
-# Application logs
-tail -f logs/production.log
-
-# Database logs
-docker-compose logs -f postgres
-```
-
-### Backup Strategy
-
-```bash
-# Automated daily backup script
-#!/bin/bash
-DATE=$(date +%Y%m%d_%H%M%S)
-BACKUP_DIR="/backups/baseball_analytics"
-
-# Backup database
-docker exec baseball_analytics_db pg_dump -U postgres baseball_analytics | gzip > "$BACKUP_DIR/db_$DATE.sql.gz"
-
-# Backup uploaded files
-tar -czf "$BACKUP_DIR/data_$DATE.tar.gz" data/
-
-# Keep last 30 days
-find $BACKUP_DIR -name "*.gz" -mtime +30 -delete
-```
-
-### Performance Monitoring
-
-```r
-# Add to global.R for performance tracking
-if (app_config$monitoring$enabled) {
-  # Track response times
-  observe({
-    start_time <- Sys.time()
-    # ... app logic ...
-    duration <- as.numeric(Sys.time() - start_time)
-    log_performance("page_load", duration, "seconds")
-  })
-}
-```
-
-### Scaling Considerations
-
-**Vertical Scaling** (Increase resources):
-- Upgrade server CPU/RAM
-- Increase PostgreSQL connection pool size
-- Optimize database queries
-
-**Horizontal Scaling** (Multiple instances):
-- Use load balancer
-- Shared PostgreSQL database
-- Redis for session storage
-- CDN for static assets
+**Backup Strategy** (when database is integrated):
+- Automated daily PostgreSQL backups
+- Data directory backups
+- Version control for code changes
 
 ---
 
 ## Troubleshooting
 
-### Common Issues
+### Common Development Issues
 
-**1. Database Connection Failed**
-```bash
-# Check PostgreSQL is running
-docker-compose ps
+**1. Packages Won't Install**
+```r
+# Clear renv cache and retry
+renv::clean()
+renv::restore()
 
-# Test connection
-docker exec -it baseball_analytics_db psql -U postgres -d baseball_analytics
-
-# Check logs
-docker-compose logs postgres
+# Check R version matches lockfile
+R.version.string  # Should be R 4.5.2
 ```
 
 **2. App Won't Start**
-```bash
-# Check R packages
-docker exec -it baseball_analytics_app R -e "renv::status()"
+```r
+# Check for syntax errors in R console
+source("global.R")
+source("ui.R")
+source("server.R")
 
-# View detailed logs
-docker-compose logs --tail=100 app
+# Verify all modules load
+source("R/mod_pitching.R")
+source("R/mod_hitting.R")
+source("R/mod_admin.R")
 ```
 
-**3. Permission Denied**
-```bash
-# Fix file permissions
-chmod -R 755 baseball_analytics_dashboard/
-chown -R $USER:$USER baseball_analytics_dashboard/
+**3. Port Already in Use**
+```powershell
+# Windows: Find and kill process using port 3838
+netstat -ano | findstr :3838
+taskkill /PID <process-id> /F
+
+# Or use a different port
+shiny::runApp(port = 8080)
 ```
 
-**4. Out of Memory**
-```bash
-# Increase Docker memory limit
-# Docker Desktop: Settings > Resources > Memory
+**4. renv Issues**
+```r
+# Restart R session and try again
+.rs.restartR()  # In RStudio
 
-# Or in docker-compose.yml
-services:
-  app:
-    mem_limit: 4g
+# Or manually activate
+source("renv/activate.R")
 ```
 
 ---
@@ -442,12 +312,11 @@ services:
 ## Support & Resources
 
 - **Documentation**: See README.md
-- **Issues**: Check logs in `logs/` directory
-- **Database Schema**: `db/init.sql`
-- **Configuration**: `config.yml`
-
-For commercial support and licensing, contact the development team.
+- **Configuration**: config.yml
+- **Database Schema**: db/init.sql
+- **Package Management**: Use renv commands (status, snapshot, restore)
 
 ---
 
 **Last Updated**: January 2026
+**Current Status**: Early development - local development workflow established

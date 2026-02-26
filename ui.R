@@ -7,9 +7,9 @@ library(bslib)
 # Define app theme (SBU colors)
 app_theme <- bs_theme(
   version = 5,
-  bg = "#FFFFFF",
+  bg = "#dedede",
   fg = "#222222",
-  primary = "#8B0015",    # SBU Red/Burgundy
+  primary = "#492779",    # SBU Purple
   secondary = "#FFFFFF",
   base_font = font_google("Roboto"),
   heading_font = font_google("Roboto Slab", wght = c(400, 700))
@@ -19,6 +19,7 @@ app_theme <- bs_theme(
 page_navbar(
   title = "SBU Baseball Analytics",
   theme = app_theme,
+  bg = "#353535",
   
   # Navigation tabs
   nav_panel(
