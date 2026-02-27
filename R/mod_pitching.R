@@ -28,9 +28,9 @@ mod_pitching_ui <- function(id) {
             id = ns("right_tabs"),
             type = "pills",
             tabPanel("Pitch Movement", girafeOutput(ns("movement"), width = "100%", height = "auto")),
-            tabPanel("Pitch Location", uiOutput(ns("pitch_location")), plotOutput(ns("pitch_location_plot"))),
-            tabPanel("Extension", uiOutput(ns("extension")), plotOutput(ns("extension_plot"))),
-            tabPanel("Release Point", uiOutput(ns("release_point")), plotOutput(ns("release_point_plot")))
+            tabPanel("Pitch Location", girafeOutput(ns("pitch_location")), width = "100%", height = "auto"),
+            tabPanel("Extension", girafeOutput(ns("extension")), width = "100%", height = "auto"),
+            tabPanel("Release Point", girafeOutput(ns("release_point")), width = "100%", height = "auto")
           )
         )
       )
@@ -63,20 +63,6 @@ mod_pitching_server <- function(id) {
     observeEvent(csv_data(), {
       updateSelectInput(session, "select_pitcher", choices = unique(csv_data()$Pitcher))
     })
-    extension_plot_reactive <- reactive({
-      req(filtered_data())
-      pitcher_extension(filtered_data())
-    })
-
-    release_point_plot_reactive <- reactive({
-      req(filtered_data())
-      release_point(filtered_data())
-    })
-
-    pitch_location_plot_reactive <- reactive({
-      req(filtered_data())
-      strike_plot(filtered_data())
-    })
     # Filter for selected pitcher
     filtered_data <- reactive({
       req(csv_data(), input$select_pitcher)
@@ -90,13 +76,13 @@ mod_pitching_server <- function(id) {
     })
 
     # Pitch location plot (namespaced to module)
-    output$pitch_location_plot <- renderPlot({
+    output$pitch_location <- renderGirafe({
       req(filtered_data())
       strike_plot(filtered_data())
     })
 
     #Pitcher extension plot 
-    output$extension_plot <- renderPlot({
+    output$extension <- renderGirafe({
       req(filtered_data())
       pitcher_extension(filtered_data())
     })
@@ -106,9 +92,9 @@ mod_pitching_server <- function(id) {
       pitch_movement(filtered_data())
     })
     #Pitch Release Point plot
-    output$release_point_plot <- renderPlot({
+    output$release_point <- renderGirafe({
       req(filtered_data())
       release_point(filtered_data())
     })
-  })
-}
+  }
+)}
