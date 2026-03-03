@@ -15,6 +15,8 @@ library(ggiraph)
 library(DBI)
 library(pool)
 library(config)
+library(gridExtra)
+library(gtable)
 
 # Load configuration for current environment
 app_config <- config::get()
@@ -25,6 +27,7 @@ source("R/mod_hitting.R")
 source("R/mod_admin.R")
 source("R/utils_db.R")
 source("R/utils_theme.R")
+source("R/generate_pitcher_report.R")
 
 # Database Connection Pool
 # Uncomment when PostgreSQL is configured
