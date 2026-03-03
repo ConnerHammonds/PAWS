@@ -4,7 +4,7 @@
 source("Visualizations/pitch_movement.R")
 source("Visualizations/strike_plot.R")
 source("Visualizations/pitcher_extension.R")
-source("Visualizations/arm_release_angle.R")
+source("Visualizations/release_point.R")
 
 #UI for pitching module
 mod_pitching_ui <- function(id) {
@@ -38,9 +38,9 @@ mod_pitching_ui <- function(id) {
             id = ns("right_tabs"),
             type = "pills",
             tabPanel("Pitch Movement", girafeOutput(ns("movement"), width = "100%", height = "auto")),
-            tabPanel("Pitch Location", uiOutput(ns("pitch_location")), plotOutput(ns("pitch_location_plot"))),
-            tabPanel("Extension", uiOutput(ns("extension"))),
-            tabPanel("Arm Angle", plotOutput(ns("arm_angle_plot")))
+            tabPanel("Pitch Location", girafeOutput(ns("pitch_location"), width = "100%", height = "auto")),
+            tabPanel("Extension", girafeOutput(ns("extension"), width = "100%", height = "auto")),
+            tabPanel("Arm Angle", girafeOutput(ns("release_point"), width = "100%", height = "auto"))
           )
         )
       )
@@ -102,13 +102,13 @@ mod_pitching_server <- function(id) {
     })
 
     # Pitch location plot (namespaced to module)
-    output$pitch_location_plot <- renderPlot({
+    output$pitch_location <- renderGirafe({
       req(filtered_data())
       strike_plot(filtered_data())
     })
 
     # Pitcher extension plot 
-    output$extension <- renderPlot({
+    output$extension <- renderGirafe({
       req(filtered_data())
       pitcher_extension(filtered_data())
     })
@@ -120,9 +120,9 @@ mod_pitching_server <- function(id) {
     })
 
     # Arm Release Angle plot
-    output$arm_angle_plot <- renderPlot({
+    output$release_point <- renderGirafe({
       req(filtered_data())
-      arm_release_angle(filtered_data())
+      release_point(filtered_data())
     })
 
     # --- PDF Report Download Handler ---
