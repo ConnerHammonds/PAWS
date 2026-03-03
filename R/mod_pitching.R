@@ -5,6 +5,7 @@ source("Visualizations/pitch_movement.R")
 source("Visualizations/strike_plot.R")
 source("Visualizations/pitcher_extension.R")
 source("Visualizations/release_point.R")
+
 #UI for pitching module
 mod_pitching_ui <- function(id) {
   ns <- NS(id)
@@ -17,7 +18,16 @@ mod_pitching_ui <- function(id) {
           style = "background-color: #353535; padding: 20px; border-radius: 10px;",
           fileInput(ns("csv_upload"), "Upload CSV"),
           selectInput(ns("select_pitcher"), "Select Pitcher", choices = NULL),
-          actionButton(ns("generate_report"), "Generate Report")
+          hr(),
+          h5("PDF Report Options", style = "color: #FFFFFF;"),
+          tags$div(
+            style = "color: #FFFFFF;",
+            checkboxInput(ns("chk_strike_zone"), "Strike Zone Scatterplot", value = TRUE),
+            checkboxInput(ns("chk_pitch_movement"), "Pitch Movement Scatterplot", value = TRUE),
+            checkboxInput(ns("chk_extension"), "Pitcher Extension Chart", value = TRUE),
+            checkboxInput(ns("chk_arm_angle"), "Arm Release Angle Chart", value = TRUE)
+          ),
+          uiOutput(ns("report_button_ui"))
         )
       ),
       column(
@@ -28,9 +38,9 @@ mod_pitching_ui <- function(id) {
             id = ns("right_tabs"),
             type = "pills",
             tabPanel("Pitch Movement", girafeOutput(ns("movement"), width = "100%", height = "auto")),
-            tabPanel("Pitch Location", uiOutput(ns("pitch_location")), plotOutput(ns("pitch_location_plot"))),
-            tabPanel("Extension", uiOutput(ns("extension")), plotOutput(ns("extension_plot"))),
-            tabPanel("Release Point", uiOutput(ns("release_point")), plotOutput(ns("release_point_plot")))
+            tabPanel("Pitch Location", girafeOutput(ns("pitch_location"), width = "100%", height = "auto")),
+            tabPanel("Release Height", girafeOutput(ns("release_height"), width = "100%", height = "auto")),
+            tabPanel("Extension", girafeOutput(ns("extension"), width = "100%", height = "auto"))
           )
         )
       )
@@ -83,6 +93,22 @@ mod_pitching_server <- function(id) {
       subset(csv_data(), Pitcher == input$select_pitcher)
     })
 
+    # Disable / enable the download button based on data availability
+    output$report_button_ui <- renderUI({
+      if (!is.null(input$csv_upload) && !is.null(input$select_pitcher) &&
+          nchar(input$select_pitcher) > 0) {
+        downloadButton(session$ns("download_report"), "Generate PDF Report",
+          style = "width: 100%; margin-top: 10px;")
+      } else {
+        tags$button(
+          "Generate PDF Report",
+          class    = "btn btn-default shiny-download-link",
+          disabled = "disabled",
+          style    = "width: 100%; margin-top: 10px; opacity: 0.5; cursor: not-allowed;"
+        )
+      }
+    })
+
     # Render the filtered data table
     output$pitch_data_table <- renderTable({
       req(filtered_data())
@@ -90,25 +116,28 @@ mod_pitching_server <- function(id) {
     })
 
     # Pitch location plot (namespaced to module)
-    output$pitch_location_plot <- renderPlot({
+    output$pitch_location <- renderGirafe({
       req(filtered_data())
       strike_plot(filtered_data())
     })
 
     #Pitcher extension plot 
-    output$extension_plot <- renderPlot({
+    output$extension <- renderGirafe({
       req(filtered_data())
       pitcher_extension(filtered_data())
     })
+
     #Pitch Movement plot
     output$movement <- renderGirafe({
       req(filtered_data())
       pitch_movement(filtered_data())
     })
-    #Pitch Release Point plot
-    output$release_point_plot <- renderPlot({
+    #Release point plot
+    output$release_height <- renderGirafe({
       req(filtered_data())
       release_point(filtered_data())
     })
-  })
+
+}
+)
 }
