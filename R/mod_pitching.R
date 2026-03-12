@@ -5,6 +5,7 @@ source("Visualizations/pitch_movement.R")
 source("Visualizations/strike_plot.R")
 source("Visualizations/pitcher_extension.R")
 source("Visualizations/release_point.R")
+source("R/generate_pitcher_report.R")
 
 #UI for pitching module
 mod_pitching_ui <- function(id) {
@@ -87,6 +88,27 @@ mod_pitching_server <- function(id) {
       req(filtered_data())
       strike_plot(filtered_data())
     })
+    output$download_report <- downloadHandler(
+      filename = function() {
+      paste0("pitch_report_", input$select_pitcher, ".pdf")
+    },
+
+    content = function(file) {
+
+    generate_pitcher_report(
+      output_file = file,
+      pitcher_name = input$select_pitcher,
+      session_date = Sys.Date(),
+      pitcher_data = filtered_data(),
+
+      show_strike_zone    = input$chk_strike_zone,
+      show_pitch_movement = input$chk_pitch_movement,
+      show_extension      = input$chk_extension,
+      show_arm_angle      = input$chk_arm_angle
+    )
+
+    }
+  )
     # Filter for selected pitcher
     filtered_data <- reactive({
       req(csv_data(), input$select_pitcher)

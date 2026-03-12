@@ -57,7 +57,7 @@ generate_pitcher_report <- function(output_file,
     plot_list[["extension"]] <- .build_extension(df)
   }
   if (show_arm_angle) {
-    plot_list[["arm_angle"]] <- arm_release_angle(df)
+    plot_list[["arm_angle"]] <- .build_arm_angle(df)
   }
 
   n_charts <- length(plot_list)
@@ -190,6 +190,19 @@ generate_pitcher_report <- function(output_file,
     labs(title = "Pitch Extension", x = "Extension (in)", y = "Release Height (in)", color = NULL) +
     .report_theme()
 }
+.build_arm_angle <- function(df) {
+
+  ggplot(df, aes(
+    x = as.numeric(Release_Side),
+    y = as.numeric(Release_Height) * 12,
+    color = Pitch_Type
+  )) +
+    geom_point(size = 3, alpha = 0.85) +
+    scale_color_manual(values = PITCH_COLORS, na.value = "grey50") +
+    labs(title = "Arm Release Angle", x = "Arm Angle (degrees)", y = "Release Height (in)", color = NULL) +
+    .report_theme()
+}
+
 
 # ===========================================================================
 # PRIVATE HELPER:  Shared ggplot theme for report plots
